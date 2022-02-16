@@ -11,11 +11,11 @@ import yaml
 
 @dataclass(frozen=True)
 class Configuration:
-    notes_location: Path = Path.home() / "notes" / "books"
+    books_location: Path = Path.home() / "notes" / "books"
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> Configuration:
-        return Configuration(notes_location=Path(data["notes"]["location"]))
+        return Configuration(books_location=Path(data["notes"]["location"]))
 
 
 def load_configuration() -> Configuration:
@@ -33,6 +33,14 @@ def cli():
     pass
 
 
+def construct_filename(document_date: date) -> str:
+    return document_date.strftime("%Y-%m-%d") + ".md"
+
+
+def construct_path(books_location: Path, book_name: str, document_date: date) -> Path:
+    return books_location / book_name / construct_filename(document_date)
+
+
 @cli.command()
 @click.argument("message", nargs=-1)
 @click.option(
@@ -48,12 +56,29 @@ def remember(message: Tuple[str, ...], document_date: date, book_name: str) -> N
         return
     if message[0] == "to":
         message = message[1:]
-    filename = document_date.strftime("%Y-%m-%d") + ".md"
-    path = conf.notes_location / book_name / filename
+    path = construct_path(conf.books_location, book_name, document_date)
     if not path.exists():
         path.parent.mkdir(parents=True)
-    with open(conf.notes_location / book_name / filename, "a") as file:
-        file.write("- " + " ".join(message) + "\n")
+    with open(path, "a") as file:
+        file.write("- [] " + " ".join(message) + "\n")
+
+
+@cli.command()
+@click.option(
+    "-d",
+    "--date",
+    "document_date",
+    type=click.DateTime(formats=["%Y-%m-%d"]),
+    default=str(date.today()),
+)
+@click.option("-b", "--book", "book_name", type=str, default="main")
+def show_file(document_date: date, book_name: str) -> None:
+    path = construct_path(conf.books_location, book_name, document_date)
+    if not path.exists():
+        click.echo(f"No notes at {path}")
+        return
+    with open(path, "r") as file:
+        click.echo_via_pager(file.read())
 
 
 if __name__ == "__main__":
