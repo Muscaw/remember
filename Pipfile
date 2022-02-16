@@ -1,0 +1,10 @@
+[packages]
+click = "8.0.3"
+pyyaml = "==6.0"
+
+[dev-packages]
+pytest = "==6.2.5"
+flake8 = "==4.0.1"
+black = "==21.10b0"
+isort = "==5.10.1"
+mypy = "0.931"
