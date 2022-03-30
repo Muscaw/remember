@@ -8,6 +8,8 @@ from typing import Any, Dict, Tuple
 import click
 import yaml
 
+conf: Configuration
+
 
 @dataclass(frozen=True)
 class Configuration:
@@ -79,6 +81,7 @@ def show_file(document_date: date, book_name: str) -> None:
         return
     with open(path, "r") as file:
         click.echo_via_pager(file.read())
+
 
 def main():
     global conf
