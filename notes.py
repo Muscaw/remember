@@ -80,8 +80,11 @@ def show_file(document_date: date, book_name: str) -> None:
     with open(path, "r") as file:
         click.echo_via_pager(file.read())
 
-
-if __name__ == "__main__":
+def main():
     global conf
     conf = load_configuration()
     cli()
+
+
+if __name__ == "__main__":
+    main()
